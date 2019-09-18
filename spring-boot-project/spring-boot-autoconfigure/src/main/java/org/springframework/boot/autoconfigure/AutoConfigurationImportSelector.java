@@ -93,6 +93,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		}
 		//加载元数据配置信息
 		AutoConfigurationMetadata autoConfigurationMetadata = AutoConfigurationMetadataLoader.loadMetadata(this.beanClassLoader);
+		//筛选排除不需要加载的Bean
 		AutoConfigurationEntry autoConfigurationEntry = getAutoConfigurationEntry(autoConfigurationMetadata, annotationMetadata);
 		return StringUtils.toStringArray(autoConfigurationEntry.getConfigurations());
 	}
@@ -101,19 +102,25 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 	 * Return the {@link AutoConfigurationEntry} based on the {@link AnnotationMetadata}
 	 * of the importing {@link Configuration @Configuration} class.
 	 *
-	 * @param autoConfigurationMetadata the auto-configuration metadata
-	 * @param annotationMetadata        the annotation metadata of the configuration class
+	 * @param autoConfigurationMetadata the auto-configuration metadata通过auto-configuration metadata 加载的元数据信息
+	 * @param annotationMetadata        the annotation metadata of the configuration class			  配置类的元数据信息
 	 * @return the auto-configurations that should be imported
 	 */
 	protected AutoConfigurationEntry getAutoConfigurationEntry(AutoConfigurationMetadata autoConfigurationMetadata, AnnotationMetadata annotationMetadata) {
 		if (!isEnabled(annotationMetadata)) {
 			return EMPTY_ENTRY;
 		}
+		//获取元数据属性
 		AnnotationAttributes attributes = getAttributes(annotationMetadata);
+		//获取spring-autoconfigure-metadata.properties 配置的需要加载的Bean的信息
 		List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);
+		//将重复的配置删除
 		configurations = removeDuplicates(configurations);
+		//通过anntacion 的配置获取需要排除的Bean 比如某些注解可以excluction={AAA.class,bbb.class}等需要排除
 		Set<String> exclusions = getExclusions(annotationMetadata, attributes);
+		//检查
 		checkExcludedClasses(configurations, exclusions);
+		//移除需要排除的bean
 		configurations.removeAll(exclusions);
 		configurations = filter(configurations, autoConfigurationMetadata);
 		fireAutoConfigurationImportEvents(configurations, exclusions);
