@@ -72,8 +72,7 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 
 	@Override
 	public void environmentPrepared(ConfigurableEnvironment environment) {
-		this.initialMulticaster
-				.multicastEvent(new ApplicationEnvironmentPreparedEvent(this.application, this.args, environment));
+		this.initialMulticaster.multicastEvent(new ApplicationEnvironmentPreparedEvent(this.application, this.args, environment));
 	}
 
 	@Override
@@ -110,8 +109,7 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 			// Listeners have been registered to the application context so we should
 			// use it at this point if we can
 			context.publishEvent(event);
-		}
-		else {
+		} else {
 			// An inactive context may not have a multicaster so we use our multicaster to
 			// call all of the context's listeners instead
 			if (context instanceof AbstractApplicationContext) {
